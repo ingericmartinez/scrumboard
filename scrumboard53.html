@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Scrumboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 span {
+            font-size: 0.7em;
+            color: #777;
+        }
+
+        .columns {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .column {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 0;
+            min-height: 200px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+            flex-grow: 1;
+            flex-basis: 0;
+        }
+        .column.todo {
+            background-color: #fff9db;
+        }
+        .column.inprogress {
+            background-color: #ffe0e0;
+        }
+        .column.done {
+            background-color: #e0f7e4;
+        }
+
+        .column:hover {
+            background-color: #f3f3f3;
+        }
+
+        .column h2 {
+            text-align: center;
+            color: #555;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            min-height: 100px;
+        }
+
+        li {
+            background-color: #fff;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dcdcdc;
+            cursor: grab;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            position: relative;
+            font-size: 0.95em;
+            word-wrap: break-word;
+        }
+
+        li:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        li.dragged {
+            opacity: 0.5;
+            border: 2px dashed #aaa;
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        form {
+            display: flex;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.3s ease;
+            height: fit-content;
+            line-height: 1;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+
+        .employee-filter {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .employee-filter label {
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .employee-filter select {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-family: 'Inter', sans-serif;
+        }
+        .employee-filter select:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            border-color: #007bff;
+        }
+        .task-creation-time {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 5px;
+            display: block;
+        }
+        .task-text-wrapper {
+            flex: 1;
+            margin-right: 70px;
+            min-width: 50px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.3s ease;
+        }
+        .pagination button:hover {
+            background-color: #ddd;
+        }
+        .pagination button.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .file-button {
+            padding: 6px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75em; /* Más pequeño */
+            transition: background-color 0.3s ease;
+            margin-left: 5px; /* Espacio reducido */
+            height: fit-content;
+            line-height: 1.2; /* Ajuste de altura de línea */
+            width: fit-content;
+            padding: 3px 5px;
+        }
+
+        .file-button:hover {
+            background-color: #45a049;
+        }
+        #file-buttons-container {
+            display: flex;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>My Scrumboard <span>{{ currentTime }}</span></h1>
+
+        <div class="employee-filter">
+            <label for="employee-select">Filter by Employee:</label>
+            <select id="employee-select" v-model="selectedEmployee" @change="filterTasks">
+                <option value="">All Employees</option>
+                <option value="Eric Martinez">Eric Martinez</option>
+                <option value="Brandon Rivera">Brandon Rivera</option>
+                <option value="Salvador Buendia">Salvador Buendia</option>
+            </select>
+        </div>
+
+        <div class="columns">
+            <div class="column todo" @dragover.prevent @drop="onDrop($event, 'todo')">
+                <h2>To Do</h2>
+                <ul id="todo">
+                    <li
+                        v-for="(task, index) in paginatedTodo"
+                        :key="task.id"
+                        draggable="true"
+                        @dragstart="startDrag($event, index, 'todo')"
+                        :class="{ 'dragged': draggedIndex === index && draggedColumn === 'todo' }"
+                        :style="getDragStyle(index, 'todo')"
+                    >
+                        <div class="task-text-wrapper">{{ task.text }} ({{ task.employee }})</div>
+                        <button class="delete-button" @click="deleteTask('todo', index)">Delete</button>
+                        <span class="task-creation-time">Created: {{ task.creationTime }}</span>
+                    </li>
+                </ul>
+                <div class="pagination">
+                    <button
+                        v-for="page in totalPagesTodo"
+                        @click="currentPageTodo = page"
+                        :class="{ 'active': currentPageTodo === page }"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+                <form @submit.prevent="addTask('todo')">
+                    <input v-model="newTodoTask" placeholder="Add task..." />
+                    <select v-model="newTodoEmployee">
+                        <option value="Eric Martinez">Eric Martinez</option>
+                        <option value="Brandon Rivera">Brandon Rivera</option>
+                        <option value="Salvador Buendia">Salvador Buendia</option>
+                    </select>
+                    <button type="submit">Add</button>
+                </form>
+                <p v-if="todoError" class="error-message">{{ todoError }}</p>
+            </div>
+            <div class="column inprogress" @dragover.prevent @drop="onDrop($event, 'inprogress')">
+                <h2>In Progress</h2>
+                <ul id="inprogress">
+                    <li
+                        v-for="(task, index) in paginatedInprogress"
+                        :key="task.id"
+                        draggable="true"
+                        @dragstart="startDrag($event, index, 'inprogress')"
+                        :class="{ 'dragged': draggedIndex === index && draggedColumn === 'inprogress' }"
+                        :style="getDragStyle(index, 'inprogress')"
+                    >
+                        <div class="task-text-wrapper">{{ task.text }} ({{ task.employee }})</div>
+                        <button class="delete-button" @click="deleteTask('inprogress', index)">Delete</button>
+                        <span class="task-creation-time">Created: {{ task.creationTime }}</span>
+                    </li>
+                </ul>
+                <div class="pagination">
+                    <button
+                        v-for="page in totalPagesInprogress"
+                        @click="currentPageInprogress = page"
+                        :class="{ 'active': currentPageInprogress === page }"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+                <form @submit.prevent="addTask('inprogress')">
+                    <input v-model="newInprogressTask" placeholder="Add task..." />
+                    <select v-model="newInprogressEmployee">
+                        <option value="Brandon Rivera">Brandon Rivera</option>
+                        <option value="Salvador Buendia">Salvador Buendia</option>
+			<option value="Eric Martinez">Eric Martinez</option>
+                    </select>
+                    <button type="submit">Add</button>
+                </form>
+                <p v-if="inprogressError" class="error-message">{{ inprogressError }}</p>
+            </div>
+            <div class="column done" @dragover.prevent @drop="onDrop($event, 'done')">
+                <h2>Done</h2>
+                <ul id="done">
+                    <li
+                        v-for="(task, index) in paginatedDone"
+                        :key="task.id"
+                        draggable="true"
+                        @dragstart="startDrag($event, index, 'done')"
+                        :class="{ 'dragged': draggedIndex === index && draggedColumn === 'done' }"
+                        :style="getDragStyle(index, 'done')"
+                    >
+                        <div class="task-text-wrapper">{{ task.text }} ({{ task.employee }})</div>
+                        <button class="delete-button" @click="deleteTask('done', index)">Delete</button>
+                        <span class="task-creation-time">Created: {{ task.creationTime }}</span>
+                    </li>
+                </ul>
+                <div class="pagination">
+                    <button
+                        v-for="page in totalPagesDone"
+                        @click="currentPageDone = page"
+                        :class="{ 'active': currentPageDone === page }"
+                    >
+                        {{ page }}
+                    </button>
+                </div>
+                <form @submit.prevent="addTask('done')">
+                    <input v-model="newDoneTask" placeholder="Add task..." />
+                    <select v-model="newDoneEmployee">
+                        <option value="Eric Martinez">Eric Martinez</option>
+                        <option value="Brandon Rivera">Brandon Rivera</option>
+                        <option value="Salvador Buendia">Salvador Buendia</option>
+                    </select>
+                    <button type="submit">Add</button>
+                </form>
+                <p v-if="doneError" class="error-message">{{ doneError }}</p>
+            </div>
+        </div>
+        <div id="file-buttons-container">
+            <button @click="saveTasksToTextFile" class="file-button">Save</button>
+            <button @click="loadTasksFromFile" class="file-button">Load</button>
+        </div>
+    </div>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    todo: [],
+                    inprogress: [],
+                    done: [],
+                    newTodoTask: "",
+                    newTodoEmployee: "Eric Martinez",
+                    newInprogressTask: "",
+                    newInprogressEmployee: "Eric Martinez",
+                    newDoneTask: "",
+                    newDoneEmployee: "Eric Martinez",
+                    draggedIndex: null,
+                    draggedColumn: null,
+                    todoError: "",
+                    inprogressError: "",
+                    doneError: "",
+                    draggedElement: null,
+                    selectedEmployee: "",
+                    currentTime: "",
+                    currentPageTodo: 1,
+                    currentPageInprogress: 1,
+                    currentPageDone: 1,
+                    tasksPerPage: 8,
+                    loading: false,
+                };
+            },
+            computed: {
+                filteredTodo() {
+                    if (!this.selectedEmployee) return this.todo;
+                    return this.todo.filter(task => task.employee === this.selectedEmployee);
+                },
+                filteredInprogress() {
+                    if (!this.selectedEmployee) return this.inprogress;
+                    return this.inprogress.filter(task => task.employee === this.selectedEmployee);
+                },
+                filteredDone() {
+                    if (!this.selectedEmployee) return this.done;
+                    return this.done.filter(task => task.employee === this.selectedEmployee);
+                },
+                paginatedTodo() {
+                    const start = (this.currentPageTodo - 1) * this.tasksPerPage;
+                    const end = start + this.tasksPerPage;
+                    return this.filteredTodo.slice(start, end);
+                },
+                paginatedInprogress() {
+                    const start = (this.currentPageInprogress - 1) * this.tasksPerPage;
+                    const end = start + this.tasksPerPage;
+                    return this.filteredInprogress.slice(start, end);
+                },
+                paginatedDone() {
+                    const start = (this.currentPageDone - 1) * this.tasksPerPage;
+                    const end = start + this.tasksPerPage;
+                    return this.filteredDone.slice(start, end);
+                },
+                totalPagesTodo() {
+                    return Math.ceil(this.filteredTodo.length / this.tasksPerPage);
+                },
+                totalPagesInprogress() {
+                    return Math.ceil(this.filteredInprogress.length / this.tasksPerPage);
+                },
+                totalPagesDone() {
+                    return Math.ceil(this.filteredDone.length / this.tasksPerPage);
+                },
+            },
+            methods: {
+                startDrag(event, index, column) {
+                    this.draggedIndex = index;
+                    this.draggedColumn = column;
+                    this.draggedElement = event.target;
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setData("text/plain", "");
+                    setTimeout(() => {
+                        this.draggedElement.classList.add("dragged");
+                    }, 0);
+                },
+                onDrop(event, targetColumn) {
+                    if (this.draggedIndex === null || this.draggedColumn === null) return;
+
+                    const task = this[this.draggedColumn].splice(this.draggedIndex, 1)[0];
+                    this[targetColumn].push(task);
+
+                    this.draggedIndex = null;
+                    this.draggedColumn = null;
+                    this.draggedElement.classList.remove("dragged");
+                    this.draggedElement = null;
+                    this.resetPagination(targetColumn);
+                },
+                addTask(column) {
+                    let newTaskText = "";
+                    let newEmployee = "";
+                    let errorKey = "";
+                    switch (column) {
+                        case "todo":
+                            newTaskText = this.newTodoTask;
+                            newEmployee = this.newTodoEmployee;
+                            errorKey = "todoError";
+                            break;
+                        case "inprogress":
+                            newTaskText = this.newInprogressTask;
+                            newEmployee = this.newInprogressEmployee;
+                            errorKey = "inprogressError";
+                            break;
+                        case "done":
+                            newTaskText = this.newDoneTask;
+                            newEmployee = this.newDoneEmployee;
+                            errorKey = "doneError";
+                            break;
+                    }
+
+                    if (newTaskText.trim() === "") {
+                        this[errorKey] = "Please enter a task.";
+                        return;
+                    }
+                    this[errorKey] = "";
+                    const newTask = {
+                        id: Math.random(),
+                        text: newTaskText,
+                        employee: newEmployee,
+                        creationTime: this.getFormattedTime(),
+                    };
+                    this[column].push(newTask);
+                    this[column === "todo" ? "newTodoTask" : column === "inprogress" ? "newInprogressTask" : "newDoneTask"] =
+                        "";
+                    this[column === "todo" ? "newTodoEmployee" : column === "inprogress" ? "newInprogressEmployee" : "newDoneEmployee"] = "Eric Martinez";
+                    this.resetPagination(column);
+
+                },
+                deleteTask(column, index) {
+                    const page = column === 'todo' ? this.currentPageTodo : column === 'inprogress' ? this.currentPageInprogress : this.currentPageDone;
+                    const startIndex = (page - 1) * this.tasksPerPage;
+                    const actualIndex = startIndex + index;
+                    this[column].splice(actualIndex, 1);
+                    this.resetPagination(column);
+                },
+                getDragStyle(index, column) {
+                    if (this.draggedIndex === index && this.draggedColumn === column) {
+                        return {
+                            opacity: 0.5,
+                            border: "2px dashed #aaa",
+                            backgroundColor: "#e0e0e0",
+                            transform: "scale(1.05)",
+                            zIndex: 10,
+                            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
+                        };
+                    }
+                    return {};
+                },
+                saveTasksToTextFile() {
+                    const data = {
+                        todo: this.todo,
+                        inprogress: this.inprogress,
+                        done: this.done,
+                    };
+                    const jsonData = JSON.stringify(data);
+                    const blob = new Blob([jsonData], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "scrumboard_data.txt";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+
+                loadTasksFromFile() {
+                  this.loading = true;
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = '.txt';
+
+                  input.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) {
+                      this.loading = false;
+                      return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      try {
+                        const jsonData = e.target.result;
+                        const data = JSON.parse(jsonData);
+
+                        this.todo = data.todo || [];
+                        this.inprogress = data.inprogress || [];
+                        this.done = data.done || [];
+                        this.resetPagination('todo');
+                        this.resetPagination('inprogress');
+                        this.resetPagination('done');
+                      } catch (error) {
+                        console.error('Error parsing file:', error);
+                        alert('Error al leer el archivo.  Asegúrese de que el archivo es un archivo de texto válido.');
+                      } finally {
+                        this.loading = false;
+                      }
+                    };
+
+                    reader.onerror = () => {
+                      console.error('Error reading file');
+                      alert('Error al leer el archivo.');
+                      this.loading = false;
+                    };
+
+                    reader.readAsText(file);
+                  };
+
+                  input.click();
+                },
+                filterTasks() {
+                    this.currentPageTodo = 1;
+                    this.currentPageInprogress = 1;
+                    this.currentPageDone = 1;
+                },
+                updateTime() {
+                    this.currentTime = new Date().toLocaleTimeString();
+                },
+                getFormattedTime() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+                },
+                resetPagination(column) {
+                  if (column === 'todo') {
+                    this.currentPageTodo = 1;
+                  } else if (column === 'inprogress') {
+                    this.currentPageInprogress = 1;
+                  } else if (column === 'done') {
+                    this.currentPageDone = 1;
+                  }
+                }
+            },
+            mounted() {
+                this.loadTasksFromFile();
+                this.updateTime();
+                setInterval(this.updateTime, 1000);
+            },
+        }).mount("#app");
+    </script>
+</body>
+</html>
