@@ -1,0 +1,92 @@
+{
+  "todo": [
+    {
+      "id": 1,
+      "text": "Diseñar la interfaz de usuario",
+      "employee": "Eric Martinez",
+      "creationTime": "10:00:00 24/04/2024"
+    },
+    {
+      "id": 2,
+      "text": "Desarrollar la lógica principal",
+      "employee": "Brandon Rivera",
+      "creationTime": "11:30:00 24/04/2024"
+    },
+    {
+      "id": 5,
+      "text": "Revisar diseños",
+      "employee": "Eric Martinez",
+      "creationTime": "14:00:00 24/04/2024"
+    },
+    {
+      "id": 6,
+      "text": "Configurar la base de datos",
+      "employee": "Brandon Rivera",
+      "creationTime": "15:15:00 24/04/2024"
+    },
+    {
+      "id": 7,
+      "text": "Escribir pruebas",
+      "employee": "Salvador Buendia",
+      "creationTime": "09:00:00 25/04/2024"
+    },
+    {
+      "id": 8,
+      "text": "Implementar la funcionalidad de arrastrar y soltar",
+      "employee": "Salvador Buendia",
+      "creationTime": "10:30:00 25/04/2024"
+    },
+        {
+      "id": 9,
+      "text": "Obtener comentarios del cliente",
+      "employee": "Brandon Rivera",
+      "creationTime": "16:00:00 25/04/2024"
+    },
+        {
+      "id": 10,
+      "text": "Corregir errores",
+      "employee": "Salvador Buendia",
+      "creationTime": "17:30:00 25/04/2024"
+    }
+  ],
+  "inprogress": [
+    {
+      "id": 3,
+      "text": "Implementar la funcionalidad de arrastrar y soltar",
+      "employee": "Salvador Buendia",
+      "creationTime": "12:00:00 24/04/2024"
+    },
+    {
+      "id": 11,
+      "text": "Crear endpoints de API",
+      "employee": "Eric Martinez",
+      "creationTime": "11:00:00 26/04/2024"
+    },
+    {
+      "id": 12,
+      "text": "Diseñar el esquema de la base de datos",
+      "employee": "Brandon Rivera",
+      "creationTime": "12:30:00 26/04/2024"
+    }
+  ],
+  "done": [
+    {
+      "id": 4,
+      "text": "Probar la aplicación",
+      "employee": "Eric Martinez",
+      "creationTime": "13:00:00 24/04/2024"
+    },
+    {
+      "id": 13,
+      "text": "Escribir documentación",
+      "employee": "Salvador Buendia",
+      "creationTime": "14:00:00 26/04/2024"
+    },
+        {
+          "id": 14,
+          "text": "Revisión final",
+          "employee": "Brandon Rivera",
+          "creationTime": "15:00:00 26/04/2024"
+        }
+  ]
+}
